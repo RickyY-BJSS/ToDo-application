@@ -20,7 +20,7 @@ func TestPrintToDos(t *testing.T) {
 		toDoList := todolist.New()
 
 		got := todolist.PrintToDos(*toDoList)
-		want := ""
+		want := "Nothing to do so far, but you can add some."
 		if got != want {
 			t.Errorf("got %s, want %s", got, want)
 		}
