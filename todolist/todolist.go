@@ -4,15 +4,20 @@ import (
 	"fmt"
 )
 
-type ToDoList struct {
-	toDos []string
+type TodoList struct {
+	ToDos []string
+	Note  string
 }
 
-func New(things ...string) *ToDoList {
-	todolist := ToDoList{}
-	todolist.toDos = append(todolist.toDos, things...)
+func New(things ...string) *TodoList {
+	todoList := TodoList{}
+	todoList.ToDos = append(todoList.ToDos, things...)
 
-	return &todolist
+	if len(todoList.ToDos) == 0 {
+		todoList.Note = "Nothing to do so far, but you can add some."
+	}
+
+	return &todoList
 }
 
 func PrintToDos(todolist ToDoList) string {
