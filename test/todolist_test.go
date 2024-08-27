@@ -1,27 +1,86 @@
 package test
 
 import (
-	"testing"
 	"academy/todoapp/todolist"
+	"os"
+	"testing"
+	"reflect"
 )
 
 func TestPrintToDos(t *testing.T) {
-	t.Run("Print out all todos, should return e.g. 1. first_thing", func(t *testing.T) {
-		toDoList := todolist.New("Code", "Cook")
+	t.Run("Print out all todos with empty note", func(t *testing.T) {
+		todos := todolist.New("Code", "Cook")
 
-		got := todolist.PrintToDos(*toDoList)
-		want := "1. Code\n2. Cook\n"
+		got, err := todolist.GetJsonToDos(*todos)
+
+		if err != nil {
+			t.Fatalf("Failed to parse todos: %s", err.Error())
+		}
+
+		want := "{\"ToDos\":[\"Code\",\"Cook\"],\"Note\":\"\"}"
 		if got != want {
 			t.Errorf("got %s, want %s", got, want)
 		}
 	})
 	
-	t.Run("0 todo in the list, should return empty string", func(t *testing.T) {
-		toDoList := todolist.New()
+	t.Run("0 todo in the list, should return with a note", func(t *testing.T) {
+		todos := todolist.New()
 
-		got := todolist.PrintToDos(*toDoList)
-		want := "Nothing to do so far, but you can add some."
+		got, err := todolist.GetJsonToDos(*todos)
+
+		if err != nil {
+			t.Fatalf("Failed to parse todos: %s", err.Error())
+		}
+
+		want := "{\"ToDos\":null,\"Note\":\"Nothing to do so far, but you can add some.\"}"
 		if got != want {
+			t.Errorf("got %s, want %s", got, want)
+		}
+	})
+
+	t.Run("Write todos to a Json format file", func(t *testing.T) {
+		todos := todolist.New("Code", "Cook")
+
+		if err := todolist.WriteToJsonFile(*todos); err != nil {
+			t.Fatalf("Failed to output json data: %s", err.Error())
+		}
+
+		jsonTodos, err := os.ReadFile("todos.json")
+
+		if err != nil {
+			t.Fatalf("Failed to read file: %s", err.Error())
+		}
+
+		defer os.Remove("todos.json")
+
+		got, err := CompactJson(jsonTodos)
+
+		if err != nil {
+			t.Fatalf("Failed to compact json data %s", err.Error())
+		}
+
+		want := "{\"ToDos\":[\"Code\",\"Cook\"],\"Note\":\"\"}"
+		if got != want {
+			t.Errorf("got %s, want %s", got, want)
+		}
+	})
+
+	t.Run("Read todos to a Json format file", func(t *testing.T) {
+		want := todolist.New("Code", "Cook")
+
+		if err := todolist.WriteToJsonFile(*want); err != nil {
+			t.Fatalf("Failed to output json data: %s", err.Error())
+		}
+		
+		got := todolist.New()
+
+		if err := got.ReadFromJsonFile("todos.json"); err != nil {
+			t.Fatalf("Failed to read json data: %s", err.Error())
+		}
+
+		defer os.Remove("todos.json")
+
+		if !reflect.DeepEqual(got, want) {
 			t.Errorf("got %s, want %s", got, want)
 		}
 	})
