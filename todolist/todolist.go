@@ -7,14 +7,22 @@ import (
 	"fmt"
 )
 
+const (
+	planned = "planned"
+	done = "done"
+)
+
 type TodoList struct {
-	ToDos []string
+	ToDos map[string]string
 	Note  string
 }
 
 func New(things ...string) *TodoList {
 	todoList := TodoList{}
-	todoList.ToDos = append(todoList.ToDos, things...)
+	todoList.ToDos = make(map[string]string)
+	for _, thing := range things {
+		todoList.ToDos[thing] = planned
+	}
 
 	if len(todoList.ToDos) == 0 {
 		todoList.Note = "Nothing to do so far, but you can add some."
@@ -29,8 +37,10 @@ func String(todoList TodoList) string {
 	}
 
 	var stringifiedTodos string
-	for i, thing := range todoList.ToDos {
-		stringifiedTodos = fmt.Sprintf("%s%d. %s ", stringifiedTodos, i+1, thing)
+	i := 1 
+	for todo, status := range todoList.ToDos {
+		stringifiedTodos = fmt.Sprintf("%s%d. %s (%s) ", stringifiedTodos, i, todo, status)
+		i++
 	}
 
 	return stringifiedTodos
