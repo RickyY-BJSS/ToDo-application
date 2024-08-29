@@ -80,8 +80,8 @@ func TestPrintToDos(t *testing.T) {
 
 		defer os.Remove("todos.json")
 
-		if !reflect.DeepEqual(got, want) {
-			t.Errorf("got %s, want %s", got, want)
+		if !cmp.Equal(got, want) {
+			t.Errorf("got %v, want %v", got, want)
 		}
 	})
 }
