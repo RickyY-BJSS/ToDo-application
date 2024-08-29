@@ -4,7 +4,7 @@ import (
 	"academy/todoapp/todolist"
 	"os"
 	"testing"
-	"reflect"
+	cmp "github.com/google/go-cmp/cmp"
 )
 
 func TestPrintToDos(t *testing.T) {
@@ -17,7 +17,7 @@ func TestPrintToDos(t *testing.T) {
 			t.Fatalf("Failed to parse todos: %s", err.Error())
 		}
 
-		want := "{\"ToDos\":{\"Code\":\"planned\",\"Cook\":\"planned\"},\"Note\":\"\"}"
+		want := "{\"ToDos\":[{\"Description\":\"Code\",\"Status\":\"planned\"},{\"Description\":\"Cook\",\"Status\":\"planned\"}],\"Note\":\"\"}"
 		if got != want {
 			t.Errorf("got %s, want %s", got, want)
 		}
@@ -32,7 +32,7 @@ func TestPrintToDos(t *testing.T) {
 			t.Fatalf("Failed to parse todos: %s", err.Error())
 		}
 
-		want := "{\"ToDos\":{},\"Note\":\"Nothing to do so far, but you can add some.\"}"
+		want := "{\"ToDos\":[],\"Note\":\"Nothing to do so far, but you can add some.\"}"
 		if got != want {
 			t.Errorf("got %s, want %s", got, want)
 		}
@@ -59,7 +59,7 @@ func TestPrintToDos(t *testing.T) {
 			t.Fatalf("Failed to compact json data %s", err.Error())
 		}
 
-		want := "{\"ToDos\":{\"Code\":\"planned\",\"Cook\":\"planned\"},\"Note\":\"\"}"
+		want := "{\"ToDos\":[{\"Description\":\"Code\",\"Status\":\"planned\"},{\"Description\":\"Cook\",\"Status\":\"planned\"}],\"Note\":\"\"}"
 		if got != want {
 			t.Errorf("got %s, want %s", got, want)
 		}

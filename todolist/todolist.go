@@ -1,6 +1,7 @@
 package todolist
 
 import (
+	"academy/todoapp/utils"
 	"encoding/json"
 	"fmt"
 	"log"
@@ -12,17 +13,20 @@ const (
 	done = "done"
 )
 
+type Todo struct {
+	Description string
+	Status string
+}
+
 type TodoList struct {
-	ToDos map[string]string
+	ToDos []*Todo
 	Note  string
 }
 
-func New(todos ...string) *TodoList {
+func New(descriptions ...string) *TodoList {
 	todoList := TodoList{}
-	todoList.ToDos = make(map[string]string)
-	for _, todo := range todos {
-		todoList.ToDos[todo] = planned
-	}
+	todoList.ToDos = []*Todo{}
+	todoList.AddTodos(descriptions...)
 
 	if len(todoList.ToDos) == 0 {
 		todoList.Note = "Nothing to do so far, but you can add some."
@@ -31,33 +35,48 @@ func New(todos ...string) *TodoList {
 	return &todoList
 }
 
-func todoExists(todos map[string]string, todo string) bool {
-	_, exist := todos[todo]
-	return exist
-}
-
-func (todoList *TodoList) AddTodos(todos ...string) {
-	for _, todo := range todos {
-		todoList.ToDos[todo] = planned
-	}
-}
-
-func (todoList *TodoList) UpdateStatus(todo string, status string) error {
-	if !todoExists(todoList.ToDos, todo) {
-		return fmt.Errorf("todo - %s does not exist", todo)
-	}
-	todoList.ToDos[todo] = status
-	return nil
-}
-
-func (todoList *TodoList) DeleteTodos(todos ...string) error {
-	for _, todo := range todos {
-		if !todoExists(todoList.ToDos, todo) {
-			return fmt.Errorf("todo - %s does not exist", todo)
+func todoExists(todos []*Todo, description string) (int, *Todo, bool) {
+	for idx, todo := range todos {
+		if todo.Description == description{
+			return idx, todo, true
 		}
-		delete(todoList.ToDos, todo)
 	}
+	return -1, nil, false
+}
+
+func (todoList *TodoList) AddTodos(descriptions ...string) {
+	for _, description := range descriptions {
+		todo := &Todo{
+			Description: description,
+			Status: planned,
+		}
+		todoList.ToDos = append(todoList.ToDos, todo)
+	}
+}
+
+func (todoList *TodoList) UpdateStatus(description string, status string) error {
+	_, todo, exists := todoExists(todoList.ToDos, description)
+	if !exists {
+		return fmt.Errorf("todo - %s does not exist", description)
+	}
+	todo.Status = status
 	return nil
+}
+
+func (todoList *TodoList) DeleteTodos(descriptions ...string) error {
+	var missingTodos string
+	for _, description := range descriptions {
+		idx, _, exists := todoExists(todoList.ToDos, description)
+		if !exists {
+			missingTodos = fmt.Sprintf("%s %s", description, missingTodos)
+			continue
+		}
+		todoList.ToDos = utils.RemoveFromSliceByIndex(todoList.ToDos, idx)
+	}
+	if missingTodos == "" {
+		return nil
+	}
+	return fmt.Errorf("todo - %sdo not exist", missingTodos)
 }
 
 func Stringify(todoList TodoList) string {
@@ -67,8 +86,8 @@ func Stringify(todoList TodoList) string {
 
 	var stringifiedTodos string
 	i := 1 
-	for todo, status := range todoList.ToDos {
-		stringifiedTodos = fmt.Sprintf("%s%d. %s (%s) ", stringifiedTodos, i, todo, status)
+	for _, todo := range todoList.ToDos {
+		stringifiedTodos = fmt.Sprintf("%s%d. %s (%s) ", stringifiedTodos, i, todo.Description, todo.Status)
 		i++
 	}
 
@@ -127,34 +146,4 @@ func (todoList *TodoList) ReadFromJsonFile(name string) error {
 	}
 
 	return err
-}
-
-func PrintTodoAndStatus(todolist TodoList) {
-	outcomeChan := make(chan string)
-	done := make(chan bool)
-
-	go func() {
-		for todo, _ := range todolist.ToDos {
-			outcomeChan <- todo
-		}
-		done <- true
-	}()
-
-	go func() {
-		for _, status := range todolist.ToDos {
-			outcomeChan <- status
-		}
-		done <- true
-	}()
-
-	go func() {
-		for data := range outcomeChan {
-			fmt.Printf("Data received: %s\n", data)
-		}
-	}()
-
-	<-done
-	<-done
-
-	close(outcomeChan)
 }
