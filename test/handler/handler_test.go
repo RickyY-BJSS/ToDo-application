@@ -125,7 +125,7 @@ func TestCreateTodos(t *testing.T) {
 		requestBody := `{
 			"listName": "list1",
 			"descriptions": [
-        		drink,
+        		"drink",
         		"swim"
     		]
 		}`
@@ -166,12 +166,18 @@ func TestGetTodos(t *testing.T) {
 
 func TestDeleteTodos(t *testing.T) {
 	t.Run("List name missed, 400", func(t *testing.T) {
-		fakeRequest := httptest.NewRequest("get", "/todo/unknown", nil)
+		requestBody := `{
+			"descriptions": [
+        		drink,
+        		"swim"
+    		]
+		}`
+		fakeRequest := httptest.NewRequest("get", "/todo/listx/delete", strings.NewReader(requestBody))
 		recorder := httptest.NewRecorder()
 		todoHandler.DeleteTodos(recorder, fakeRequest)
 
 		got := recorder.Code
-		want := http.StatusNotFound
+		want := http.StatusBadRequest
 
 		if got != want {
 			t.Errorf("got %d, want %d", got, want)

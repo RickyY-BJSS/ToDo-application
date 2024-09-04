@@ -3,6 +3,7 @@ package repository_test
 import (
 	"os"
 	"testing"
+	"context"
 
 	"academy/todoapp/datastore"
 	"academy/todoapp/internal/db"
@@ -11,6 +12,7 @@ import (
 
 var todoStore *datastore.TodoStore
 var repo *db.Repository
+var ctx context.Context = context.WithValue(context.TODO(), "fakeKey", "fakeID")
 
 func TestMain(m *testing.M) {
 	setup()
@@ -38,12 +40,12 @@ func TestRWMutexLock(t *testing.T) {
 	t.Run("Test RWMutex on datastore", func(t *testing.T) {
 		errorChannel := make(chan error)
 		go func(errorChannel *chan error) {
-			*errorChannel <- repo.CreateTodos("list3", []string{"yoga", "boxing"})
+			*errorChannel <- repo.CreateTodos(ctx, "list3", []string{"yoga", "boxing"})
 			
 		}(&errorChannel)
 
 		go func(errorChannel *chan error) {
-			*errorChannel <- repo.CreateTodos("list3", []string{"party", "sleep"})
+			*errorChannel <- repo.CreateTodos(ctx, "list3", []string{"party", "sleep"})
 			
 		}(&errorChannel)
 
