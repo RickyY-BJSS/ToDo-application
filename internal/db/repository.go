@@ -17,24 +17,22 @@ type Repository struct {
 	RwMutex   *sync.RWMutex
 }
 
-func NewRepo(todoStore *datastore.TodoStore) *Repository {
-	return &Repository{
-		//DB: db,
-		TodoStore: todoStore,
-		RwMutex:   &sync.RWMutex{},
-	}
+var repo Repository = Repository{
+	//DB: db,
+	TodoStore: datastore.Store,
+	RwMutex:   &sync.RWMutex{},
 }
 
-func (repo *Repository) listExists(listName string) bool {
+func listExists(listName string) bool {
 	_, exist := repo.TodoStore.UserTodos[listName]
 	return exist
 }
 
-func (repo *Repository) CreateTodos(ctx context.Context, listName string, descriptions []string) error {
+func CreateTodos(ctx context.Context, listName string, descriptions []string) error {
 	repo.RwMutex.Lock()
 	defer repo.RwMutex.Unlock()
 
-	if repo.listExists(listName) {
+	if listExists(listName) {
 		return fmt.Errorf("listName - %s taken, please change", listName)
 	}
 	todoList := model.NewTodoList(descriptions...)
@@ -44,11 +42,11 @@ func (repo *Repository) CreateTodos(ctx context.Context, listName string, descri
 	return nil
 }
 
-func (repo *Repository) GetTodos(ctx context.Context, listName string) (*model.TodoList, error) {
+func GetTodos(ctx context.Context, listName string) (*model.TodoList, error) {
 	repo.RwMutex.RLock()
 	defer repo.RwMutex.RUnlock()
 
-	if !repo.listExists(listName) {
+	if !listExists(listName) {
 		return nil, fmt.Errorf("listName - %s does not exist", listName)
 	}
 	msg := fmt.Sprintf("List - %s found, getting todos", listName)
@@ -56,11 +54,11 @@ func (repo *Repository) GetTodos(ctx context.Context, listName string) (*model.T
 	return repo.TodoStore.UserTodos[listName], nil
 }
 
-func (repo *Repository) AddTodos(ctx context.Context, listName string, descriptions []string) error {
+func AddTodos(ctx context.Context, listName string, descriptions []string) error {
 	repo.RwMutex.Lock()
 	defer repo.RwMutex.Unlock()
 
-	if !repo.listExists(listName) {
+	if !listExists(listName) {
 		return fmt.Errorf("listName - %s does not exist", listName)
 	}
 	msg := fmt.Sprintf("List - %s found, adding todos", listName)
@@ -72,11 +70,11 @@ func (repo *Repository) AddTodos(ctx context.Context, listName string, descripti
 	return nil
 }
 
-func (repo *Repository) UpdateStatus(ctx context.Context, listName string, description string, status string) error {
+func UpdateStatus(ctx context.Context, listName string, description string, status string) error {
 	repo.RwMutex.Lock()
 	defer repo.RwMutex.Unlock()
 
-	if !repo.listExists(listName) {
+	if !listExists(listName) {
 		return fmt.Errorf("listName - %s does not exist", listName)
 	}
 	msg := fmt.Sprintf("List - %s found, updating status", listName)
@@ -85,11 +83,11 @@ func (repo *Repository) UpdateStatus(ctx context.Context, listName string, descr
 	return todoList.UpdateStatus(description, status)
 }
 
-func (repo *Repository) DeleteTodos(ctx context.Context, listName string, descriptions []string) error {
+func DeleteTodos(ctx context.Context, listName string, descriptions []string) error {
 	repo.RwMutex.Lock()
 	defer repo.RwMutex.Unlock()
 
-	if !repo.listExists(listName) {
+	if !listExists(listName) {
 		return fmt.Errorf("listName - %s does not exist", listName)
 	}
 	msg := fmt.Sprintf("List - %s found, deleting todos", listName)

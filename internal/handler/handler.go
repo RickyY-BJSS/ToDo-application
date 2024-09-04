@@ -15,15 +15,7 @@ import (
 
 var ctx context.Context
 
-type TodoHandler struct {
-	Service *service.TodoService
-}
-
-func New(service *service.TodoService) *TodoHandler {
-	return &TodoHandler{Service: service}
-}
-
-func (h *TodoHandler) CreateTodos(w http.ResponseWriter, r *http.Request) {
+func CreateTodos(w http.ResponseWriter, r *http.Request) {
 	ctx = r.Context()
 	var request model.TodosModificationRequest
 	decoder := json.NewDecoder(r.Body)
@@ -44,7 +36,7 @@ func (h *TodoHandler) CreateTodos(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = h.Service.CreateTodos(ctx, request.ListName, request.Descriptions)
+	err = service.CreateTodos(ctx, request.ListName, request.Descriptions)
 
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -54,10 +46,10 @@ func (h *TodoHandler) CreateTodos(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusAccepted)
 }
 
-func (h *TodoHandler) GetTodos(w http.ResponseWriter, r *http.Request) {
+func GetTodos(w http.ResponseWriter, r *http.Request) {
 	ctx = r.Context()
 	listName := mux.Vars(r)["listName"]
-	todos, err := h.Service.GetTodos(ctx, listName)
+	todos, err := service.GetTodos(ctx, listName)
 
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusNotFound)
@@ -70,7 +62,7 @@ func (h *TodoHandler) GetTodos(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(todos)
 }
 
-func (h *TodoHandler) AddTodos(w http.ResponseWriter, r *http.Request) {
+func AddTodos(w http.ResponseWriter, r *http.Request) {
 	ctx = r.Context()
 	var request model.TodosModificationRequest
 	decoder := json.NewDecoder(r.Body)
@@ -96,7 +88,7 @@ func (h *TodoHandler) AddTodos(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = h.Service.AddTodos(ctx, listName, descriptions)
+	err = service.AddTodos(ctx, listName, descriptions)
 
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -106,14 +98,14 @@ func (h *TodoHandler) AddTodos(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusAccepted)
 }
 
-func (h *TodoHandler) UpdateStatus(w http.ResponseWriter, r *http.Request) {
+func UpdateStatus(w http.ResponseWriter, r *http.Request) {
 	ctx = r.Context()
 	listName := mux.Vars(r)["listName"]
 	queryParam := r.URL.Query()
 	description := queryParam.Get("description")
 	status := queryParam.Get("status")
 
-	err := h.Service.UpdateStatus(ctx, listName, description, status)
+	err := service.UpdateStatus(ctx, listName, description, status)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -125,7 +117,7 @@ func (h *TodoHandler) UpdateStatus(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusAccepted)
 }
 
-func (h *TodoHandler) DeleteTodos(w http.ResponseWriter, r *http.Request) {
+func DeleteTodos(w http.ResponseWriter, r *http.Request) {
 	ctx = r.Context()
 	var request model.TodosModificationRequest
 	decoder := json.NewDecoder(r.Body)
@@ -151,7 +143,7 @@ func (h *TodoHandler) DeleteTodos(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = h.Service.DeleteTodos(ctx, listName, descriptions)
+	err = service.DeleteTodos(ctx, listName, descriptions)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return

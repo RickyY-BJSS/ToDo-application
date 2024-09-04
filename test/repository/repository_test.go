@@ -1,53 +1,26 @@
 package repository_test
 
 import (
-	"os"
 	"testing"
+	"context"
 
-	"academy/todoapp/datastore"
 	"academy/todoapp/internal/db"
-	"academy/todoapp/internal/model"
 )
 
-var todoStore *datastore.TodoStore
-var repo *db.Repository
-
-func TestMain(m *testing.M) {
-	setup()
-
-	code := m.Run()
-
-    os.Exit(code)
-}
-
-func setup() {
-	todoList1 := model.NewTodoList("clean", "cook")
-	todoList2 := model.NewTodoList("lunch", "train")
-	
-	todoStore = &datastore.TodoStore{
-		UserTodos: map[string]*model.TodoList{
-			"list1": todoList1,
-			"list2": todoList2,
-		},
-	}
-
-	repo = db.NewRepo(todoStore) 
-}
+var ctx context.Context = context.WithValue(context.TODO(), "fakeKey", "fakeID")
 
 func TestRWMutexLock(t *testing.T) {
 	t.Run("Test RWMutex on datastore", func(t *testing.T) {
 		errorChannel := make(chan error)
 		go func(errorChannel *chan error) {
-			*errorChannel <- repo.CreateTodos("list3", []string{"yoga", "boxing"})
+			*errorChannel <- db.CreateTodos(ctx, "list3", []string{"yoga", "boxing"})
 			
 		}(&errorChannel)
 
 		go func(errorChannel *chan error) {
-			*errorChannel <- repo.CreateTodos("list3", []string{"party", "sleep"})
+			*errorChannel <- db.CreateTodos(ctx, "list3", []string{"party", "sleep"})
 			
 		}(&errorChannel)
-
-		defer setup()
 		
 		err1 := <- errorChannel
 		err2 := <- errorChannel

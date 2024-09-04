@@ -3,42 +3,11 @@ package handler_test
 import (
 	"net/http"
 	"net/http/httptest"
-	"os"
 	"strings"
 	"testing"
 
-	"academy/todoapp/datastore"
-	"academy/todoapp/internal/db"
 	"academy/todoapp/internal/handler"
-	"academy/todoapp/internal/model"
-	"academy/todoapp/internal/service"
 )
-
-var todoHandler *handler.TodoHandler
-
-func TestMain(m *testing.M) {
-	setup()
-
-	code := m.Run()
-
-    os.Exit(code)
-}
-
-func setup() {
-	todoList1 := model.NewTodoList("clean", "cook")
-	todoList2 := model.NewTodoList("lunch", "train")
-	
-	todoStore := &datastore.TodoStore{
-		UserTodos: map[string]*model.TodoList{
-			"list1": todoList1,
-			"list2": todoList2,
-		},
-	}
-
-	repo := db.NewRepo(todoStore)
-    todoService := service.New(repo)
-    todoHandler = handler.New(todoService)
-}
 
 func TestCreateTodos(t *testing.T) {
 	t.Run("Successfully create todos, 202", func(t *testing.T) {
@@ -51,7 +20,7 @@ func TestCreateTodos(t *testing.T) {
 		}`
 		fakeRequest := httptest.NewRequest("POST", "/todo/create", strings.NewReader(requestBody))
 		recorder := httptest.NewRecorder()
-		todoHandler.CreateTodos(recorder, fakeRequest)
+		handler.CreateTodos(recorder, fakeRequest)
 
 		got := recorder.Code
 		want := http.StatusAccepted
@@ -71,7 +40,7 @@ func TestCreateTodos(t *testing.T) {
 		}`
 		fakeRequest := httptest.NewRequest("POST", "/todo/create", strings.NewReader(requestBody))
 		recorder := httptest.NewRecorder()
-		todoHandler.CreateTodos(recorder, fakeRequest)
+		handler.CreateTodos(recorder, fakeRequest)
 
 		got := recorder.Code
 		want := http.StatusBadRequest
@@ -91,7 +60,7 @@ func TestCreateTodos(t *testing.T) {
 		}`
 		fakeRequest := httptest.NewRequest("POST", "/todo/create", strings.NewReader(requestBody))
 		recorder := httptest.NewRecorder()
-		todoHandler.CreateTodos(recorder, fakeRequest)
+		handler.CreateTodos(recorder, fakeRequest)
 
 		got := recorder.Code
 		want := http.StatusBadRequest
@@ -111,7 +80,7 @@ func TestCreateTodos(t *testing.T) {
 		}`
 		fakeRequest := httptest.NewRequest("POST", "/todo/create", strings.NewReader(requestBody))
 		recorder := httptest.NewRecorder()
-		todoHandler.CreateTodos(recorder, fakeRequest)
+		handler.CreateTodos(recorder, fakeRequest)
 
 		got := recorder.Code
 		want := http.StatusBadRequest
@@ -125,13 +94,13 @@ func TestCreateTodos(t *testing.T) {
 		requestBody := `{
 			"listName": "list1",
 			"descriptions": [
-        		drink,
+        		"drink",
         		"swim"
     		]
 		}`
 		fakeRequest := httptest.NewRequest("POST", "/todo/create", strings.NewReader(requestBody))
 		recorder := httptest.NewRecorder()
-		todoHandler.CreateTodos(recorder, fakeRequest)
+		handler.CreateTodos(recorder, fakeRequest)
 
 		got := recorder.Code
 		want := http.StatusInternalServerError
@@ -139,7 +108,7 @@ func TestCreateTodos(t *testing.T) {
 		if got != want {
 			t.Errorf("got %d, want %d", got, want)
 		}
-	})	
+	})
 }
 
 func TestGetTodos(t *testing.T) {
@@ -153,7 +122,7 @@ func TestGetTodos(t *testing.T) {
 		}`
 		fakeRequest := httptest.NewRequest("get", "/todo/unknown", strings.NewReader(requestBody))
 		recorder := httptest.NewRecorder()
-		todoHandler.GetTodos(recorder, fakeRequest)
+		handler.GetTodos(recorder, fakeRequest)
 
 		got := recorder.Code
 		want := http.StatusNotFound
@@ -165,13 +134,19 @@ func TestGetTodos(t *testing.T) {
 }
 
 func TestDeleteTodos(t *testing.T) {
+	requestBody := `{
+		"descriptions": [
+			"drink",
+			"swim"
+		]
+	}`
 	t.Run("List name missed, 400", func(t *testing.T) {
-		fakeRequest := httptest.NewRequest("get", "/todo/unknown", nil)
+		fakeRequest := httptest.NewRequest("get", "/todo/listx/delete", strings.NewReader(requestBody))
 		recorder := httptest.NewRecorder()
-		todoHandler.DeleteTodos(recorder, fakeRequest)
+		handler.DeleteTodos(recorder, fakeRequest)
 
 		got := recorder.Code
-		want := http.StatusNotFound
+		want := http.StatusBadRequest
 
 		if got != want {
 			t.Errorf("got %d, want %d", got, want)

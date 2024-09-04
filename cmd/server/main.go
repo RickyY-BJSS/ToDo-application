@@ -8,10 +8,7 @@ import (
 	"github.com/gorilla/mux"
 
 	"academy/todoapp/datastore"
-	"academy/todoapp/internal/db"
 	"academy/todoapp/internal/handler"
-	"academy/todoapp/internal/model"
-	"academy/todoapp/internal/service"
 	"academy/todoapp/internal/utils"
 )
 
@@ -20,27 +17,12 @@ var todoStore *datastore.TodoStore
 var traceIDKey utils.ContextKey
 
 func main() {
-	// intial data, dev env only
-	todoList1 := model.NewTodoList("clean", "cook")
-	todoList2 := model.NewTodoList("lunch", "train")
-	
-	todoStore = &datastore.TodoStore{
-		UserTodos: map[string]*model.TodoList{
-			"list1": todoList1,
-			"list2": todoList2,
-		},
-	}
-
-	repo := db.NewRepo(todoStore)
-    todoService := service.New(repo)
-    todoHandler := handler.New(todoService)
-
 	router := mux.NewRouter()
-	router.HandleFunc("/todo/create", todoHandler.CreateTodos).Methods(http.MethodPost)
-	router.HandleFunc("/todo/{listName}", todoHandler.GetTodos).Methods(http.MethodGet)
-	router.HandleFunc("/todo/{listName}/add", todoHandler.AddTodos).Methods(http.MethodPost)
-	router.HandleFunc("/todo/{listName}/update-status", todoHandler.UpdateStatus).Methods(http.MethodPost)
-	router.HandleFunc("/todo/{listName}/delete", todoHandler.DeleteTodos).Methods(http.MethodPost)
+	router.HandleFunc("/todo/create", handler.CreateTodos).Methods(http.MethodPost)
+	router.HandleFunc("/todo/{listName}", handler.GetTodos).Methods(http.MethodGet)
+	router.HandleFunc("/todo/{listName}/add", handler.AddTodos).Methods(http.MethodPost)
+	router.HandleFunc("/todo/{listName}/update-status", handler.UpdateStatus).Methods(http.MethodPost)
+	router.HandleFunc("/todo/{listName}/delete", handler.DeleteTodos).Methods(http.MethodPost)
 	router.Use(loggingMiddleware)
 
 	log.Println("Starting App")
