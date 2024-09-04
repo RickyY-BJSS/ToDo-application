@@ -1,7 +1,7 @@
-package test
+package model_test
 
 import (
-	"academy/todoapp/todolist"
+	"academy/todoapp/internal/model"
 	"os"
 	"testing"
 	cmp "github.com/google/go-cmp/cmp"
@@ -9,9 +9,9 @@ import (
 
 func TestPrintToDos(t *testing.T) {
 	t.Run("Print out all todos with empty note", func(t *testing.T) {
-		todos := todolist.New("Code", "Cook")
+		todos := model.NewTodoList("Code", "Cook")
 
-		got, err := todolist.GetJsonToDos(*todos)
+		got, err := model.GetJsonToDos(*todos)
 
 		if err != nil {
 			t.Fatalf("Failed to parse todos: %s", err.Error())
@@ -24,9 +24,9 @@ func TestPrintToDos(t *testing.T) {
 	})
 	
 	t.Run("0 todo in the list, should return with a note", func(t *testing.T) {
-		todos := todolist.New()
+		todos := model.NewTodoList()
 
-		got, err := todolist.GetJsonToDos(*todos)
+		got, err := model.GetJsonToDos(*todos)
 
 		if err != nil {
 			t.Fatalf("Failed to parse todos: %s", err.Error())
@@ -39,9 +39,9 @@ func TestPrintToDos(t *testing.T) {
 	})
 
 	t.Run("Write todos to a Json format file", func(t *testing.T) {
-		todos := todolist.New("Code", "Cook")
+		todos := model.NewTodoList("Code", "Cook")
 
-		if err := todolist.WriteToJsonFile(*todos); err != nil {
+		if err := model.WriteToJsonFile(*todos); err != nil {
 			t.Fatalf("Failed to output json data: %s", err.Error())
 		}
 
@@ -66,13 +66,13 @@ func TestPrintToDos(t *testing.T) {
 	})
 
 	t.Run("Read todos to a Json format file", func(t *testing.T) {
-		want := todolist.New("Code", "Cook")
+		want := model.NewTodoList("Code", "Cook")
 
-		if err := todolist.WriteToJsonFile(*want); err != nil {
+		if err := model.WriteToJsonFile(*want); err != nil {
 			t.Fatalf("Failed to output json data: %s", err.Error())
 		}
 		
-		got := todolist.New()
+		got := model.NewTodoList()
 
 		if err := got.ReadFromJsonFile("todos.json"); err != nil {
 			t.Fatalf("Failed to read json data: %s", err.Error())

@@ -1,8 +1,8 @@
-package test
+package datastore_test
 
 import (
 	"academy/todoapp/datastore"
-	"academy/todoapp/todolist"
+	"academy/todoapp/internal/model"
 	"os"
 	"testing"
 
@@ -21,11 +21,11 @@ func TestMain(m *testing.M) {
 }
 
 func setup() {
-	todoList1 := todolist.New("clean", "cook")
-	todoList2 := todolist.New("lunch", "train")
+	todoList1 := model.NewTodoList("clean", "cook")
+	todoList2 := model.NewTodoList("lunch", "train")
 	
 	todoStore = &datastore.TodoStore{
-		UserTodos: map[string]*todolist.TodoList{
+		UserTodos: map[string]*model.TodoList{
 			"list1": todoList1,
 			"list2": todoList2,
 		},
@@ -44,7 +44,7 @@ func TestCreateTodos(t *testing.T) {
 
 		got := todoStore.UserTodos["list3"]
 
-		want := todolist.New("yoga", "boxing")
+		want := model.NewTodoList("yoga", "boxing")
 
 		if !cmp.Equal(got, want) {
 			t.Errorf("got %v, want %v", got, want)
@@ -114,7 +114,7 @@ func TestAddTodos(t *testing.T) {
 
 		got := todoStore.UserTodos["list2"]
 
-		want := todolist.New("lunch", "train", "dinner")
+		want := model.NewTodoList("lunch", "train", "dinner")
 
 		if !cmp.Equal(got, want) {
 			t.Errorf("got %v, want %v", got, want)
@@ -190,7 +190,7 @@ func TestDeleteTodos(t *testing.T) {
 
 		got := todoStore.UserTodos["list2"]
 
-		want := todolist.New("train")
+		want := model.NewTodoList("train")
 
 		if !cmp.Equal(got, want) {
 			t.Errorf("got %v, want %v", got, want)
@@ -224,7 +224,7 @@ func TestDeleteTodos(t *testing.T) {
 
 		got2 := todoStore.UserTodos["list2"]
 
-		want2 := todolist.New("train")
+		want2 := model.NewTodoList("train")
 
 		if !cmp.Equal(got2, want2) {
 			t.Errorf("got %v, want %v", got2, want2)

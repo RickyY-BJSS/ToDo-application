@@ -1,13 +1,13 @@
 package datastore
 
 import (
-	"academy/todoapp/todolist"
+	"academy/todoapp/internal/model"
 	"log"
 	"fmt"
 )
 
 type TodoStore struct {
-	UserTodos map[string]*todolist.TodoList
+	UserTodos map[string]*model.TodoList
 }
 
 func listExists(todoStore *TodoStore, listName string) bool {
@@ -19,7 +19,7 @@ func (todoStore *TodoStore) CreateTodos(listName string, descriptions []string) 
 	if listExists(todoStore, listName) {
 		return fmt.Errorf("listName - %s taken, please change", listName)
 	}
-	todoList := todolist.New(descriptions...)
+	todoList := model.NewTodoList(descriptions...)
 	todoStore.UserTodos[listName] = todoList
 	log.Printf("Todo list - %s created successfully for user", listName)
 	return nil
@@ -30,7 +30,7 @@ func (todoStore *TodoStore) GetTodos(listName string) (string, error) {
 		return "", fmt.Errorf("listName - %s does not exist", listName)
 	}
 	log.Printf("List - %s found, getting todos", listName)
-	return todolist.Stringify(*todoStore.UserTodos[listName]), nil
+	return model.StringifyTodo(*todoStore.UserTodos[listName]), nil
 }
 
 func (todoStore *TodoStore) AddTodos(listName string, descriptions []string) error {

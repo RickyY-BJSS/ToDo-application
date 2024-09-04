@@ -1,11 +1,12 @@
-package todolist
+package model
 
 import (
-	"academy/todoapp/utils"
 	"encoding/json"
 	"fmt"
 	"log"
 	"os"
+
+	"academy/todoapp/internal/utils"
 )
 
 const (
@@ -23,7 +24,7 @@ type TodoList struct {
 	Note  string
 }
 
-func New(descriptions ...string) *TodoList {
+func NewTodoList(descriptions ...string) *TodoList {
 	todoList := TodoList{}
 	todoList.ToDos = []*Todo{}
 	todoList.AddTodos(descriptions...)
@@ -79,7 +80,7 @@ func (todoList *TodoList) DeleteTodos(descriptions ...string) error {
 	return fmt.Errorf("todo - %sdo not exist", missingTodos)
 }
 
-func Stringify(todoList TodoList) string {
+func StringifyTodo(todoList TodoList) string {
 	if len(todoList.ToDos) == 0 {
 		return todoList.Note
 	}
