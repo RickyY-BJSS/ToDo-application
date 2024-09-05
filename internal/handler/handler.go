@@ -13,8 +13,6 @@ import (
 	"github.com/gorilla/mux"
 )
 
-var ctx context.Context
-
 type TodoHandler struct {
 	Service *service.TodoService
 }
@@ -24,7 +22,7 @@ func New(service *service.TodoService) *TodoHandler {
 }
 
 func (h *TodoHandler) CreateTodos(w http.ResponseWriter, r *http.Request) {
-	ctx = r.Context()
+	ctx := r.Context()
 	var request model.TodosModificationRequest
 	decoder := json.NewDecoder(r.Body)
 	decoder.DisallowUnknownFields()
