@@ -1,7 +1,6 @@
 package handler
 
 import (
-	"context"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -53,7 +52,7 @@ func (h *TodoHandler) CreateTodos(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *TodoHandler) GetTodos(w http.ResponseWriter, r *http.Request) {
-	ctx = r.Context()
+	ctx := r.Context()
 	listName := mux.Vars(r)["listName"]
 	todos, err := h.Service.GetTodos(ctx, listName)
 
@@ -69,7 +68,7 @@ func (h *TodoHandler) GetTodos(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *TodoHandler) AddTodos(w http.ResponseWriter, r *http.Request) {
-	ctx = r.Context()
+	ctx := r.Context()
 	var request model.TodosModificationRequest
 	decoder := json.NewDecoder(r.Body)
 	decoder.DisallowUnknownFields()
@@ -105,7 +104,7 @@ func (h *TodoHandler) AddTodos(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *TodoHandler) UpdateStatus(w http.ResponseWriter, r *http.Request) {
-	ctx = r.Context()
+	ctx := r.Context()
 	listName := mux.Vars(r)["listName"]
 	queryParam := r.URL.Query()
 	description := queryParam.Get("description")
@@ -124,7 +123,7 @@ func (h *TodoHandler) UpdateStatus(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *TodoHandler) DeleteTodos(w http.ResponseWriter, r *http.Request) {
-	ctx = r.Context()
+	ctx := r.Context()
 	var request model.TodosModificationRequest
 	decoder := json.NewDecoder(r.Body)
 	decoder.DisallowUnknownFields()
