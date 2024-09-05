@@ -13,10 +13,9 @@ import (
 	"github.com/gorilla/mux"
 )
 
-var ctx context.Context
 
 func CreateTodos(w http.ResponseWriter, r *http.Request) {
-	ctx = r.Context()
+	ctx := r.Context()
 	var request model.TodosModificationRequest
 	decoder := json.NewDecoder(r.Body)
 	decoder.DisallowUnknownFields()
@@ -47,7 +46,7 @@ func CreateTodos(w http.ResponseWriter, r *http.Request) {
 }
 
 func GetTodos(w http.ResponseWriter, r *http.Request) {
-	ctx = r.Context()
+	ctx := r.Context()
 	listName := mux.Vars(r)["listName"]
 	todos, err := service.GetTodos(ctx, listName)
 
@@ -63,7 +62,7 @@ func GetTodos(w http.ResponseWriter, r *http.Request) {
 }
 
 func AddTodos(w http.ResponseWriter, r *http.Request) {
-	ctx = r.Context()
+	ctx := r.Context()
 	var request model.TodosModificationRequest
 	decoder := json.NewDecoder(r.Body)
 	decoder.DisallowUnknownFields()
@@ -99,7 +98,7 @@ func AddTodos(w http.ResponseWriter, r *http.Request) {
 }
 
 func UpdateStatus(w http.ResponseWriter, r *http.Request) {
-	ctx = r.Context()
+	ctx := r.Context()
 	listName := mux.Vars(r)["listName"]
 	queryParam := r.URL.Query()
 	description := queryParam.Get("description")
@@ -118,7 +117,7 @@ func UpdateStatus(w http.ResponseWriter, r *http.Request) {
 }
 
 func DeleteTodos(w http.ResponseWriter, r *http.Request) {
-	ctx = r.Context()
+	ctx := r.Context()
 	var request model.TodosModificationRequest
 	decoder := json.NewDecoder(r.Body)
 	decoder.DisallowUnknownFields()
